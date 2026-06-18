@@ -5,6 +5,7 @@ import { authService } from "../services/auth.service";
 interface AuthContextType {
   user: User | null;
   setUser: React.Dispatch<React.SetStateAction<User | null>>;
+  isLoading: boolean;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(
@@ -22,16 +23,17 @@ export const useAuth = (): AuthContextType => {
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
   useEffect(() => {
-    let user = authService.isAuthenticated();
-    if (user instanceof Promise) {
-      user.then((u) => setUser(u || null));
-    } else {
-      setUser(user || null);
-    }
+    authService
+      .isAuthenticated()
+      .then((u) => setUser(u || null))
+      .finally(() => setIsLoading(false));
   }, []);
+
   return (
-    <AuthContext.Provider value={{ user, setUser }}>
+    <AuthContext.Provider value={{ user, setUser, isLoading }}>
       {children}
     </AuthContext.Provider>
   );

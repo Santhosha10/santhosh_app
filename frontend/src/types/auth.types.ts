@@ -1,11 +1,15 @@
-import type { User } from './index'
+import type { User } from "./index";
 
 export interface LoginPayload {
-  email: string
-  password: string
+  email: string;
+  password: string;
+}
+
+export interface RegisterPayload extends LoginPayload {
+  name: string;
 }
 
 export interface AuthResponse {
-  token: string
-  user: User
+  token: string;
+  user: User;
 }

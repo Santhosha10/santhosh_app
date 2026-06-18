@@ -1,6 +1,8 @@
+import "dotenv/config";
 import express from "express";
 import cors from "cors";
-import authRoutes from "./routes/auth.routes";
+import authRoutes from "./routes/auth.routes.js";
+import { prisma } from "./dbconfig/prisma.js";
 
 const app = express();
 const port = 3000;
@@ -37,6 +39,7 @@ process.on("unhandledRejection", (reason) => {
   console.error(reason);
 });
 
-process.on("SIGINT", () => {
+process.on("SIGINT", async () => {
+  await prisma.$disconnect();
   process.exit(0);
 });

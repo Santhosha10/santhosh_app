@@ -1,8 +1,7 @@
 export interface User {
-  id: Int16Array;
+  id: number;
   name: string;
   email: string;
-  role: "admin" | "user";
-  createdAt: Date;
-  updatedAt: Date;
+  created_at: string;
+  updated_at: string;
 }
