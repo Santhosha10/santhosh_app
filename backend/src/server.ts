@@ -5,22 +5,26 @@ import authRoutes from "./routes/auth.routes.js";
 import { prisma } from "./dbconfig/prisma.js";
 
 const app = express();
-const port = 3000;
+const port = Number(process.env["PORT"] || 3000);
+const frontendUrl = process.env["FRONTEND_URL"] || "http://localhost:5173";
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: frontendUrl,
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization"],
   }),
 );
 
 app.use(express.json());
+app.get("/health", (_req, res) => {
+  res.status(200).json({ status: "ok" });
+});
 app.use("/api/auth", authRoutes);
 
 const startServer = async () => {
   try {
-    app.listen(port, () => {
+    app.listen(port, "0.0.0.0", () => {
       console.log(`Server is running on port ${port}`);
     });
   } catch (error) {
