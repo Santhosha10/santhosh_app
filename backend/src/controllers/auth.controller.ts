@@ -23,9 +23,11 @@ const getJwtSecret = () => {
 
   return secret;
 };
+const shouldLogAuthTimings = process.env["LOG_AUTH_TIMINGS"] === "true";
 
 export const authController = {
   login: async (req: Request, res: Response) => {
+    const startedAt = Date.now();
     const result = loginSchema.safeParse(req.body);
 
     if (!result.success) {
@@ -35,24 +37,52 @@ export const authController = {
     }
 
     try {
+      const dbStartedAt = Date.now();
       const user = await prisma.user.findUnique({
         where: { email: result.data.email },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          password: true,
+        },
       });
+      const dbMs = Date.now() - dbStartedAt;
 
       if (!user) {
+        if (shouldLogAuthTimings) {
+          console.log(`Login timing: db=${dbMs}ms total=${Date.now() - startedAt}ms user=missing`);
+        }
+
         return res.status(401).json({ error: "Invalid email or password" });
       }
 
+      const bcryptStartedAt = Date.now();
       const isPasswordValid = await bcrypt.compare(
         result.data.password,
         user.password,
       );
+      const bcryptMs = Date.now() - bcryptStartedAt;
 
       if (!isPasswordValid) {
+        if (shouldLogAuthTimings) {
+          console.log(
+            `Login timing: db=${dbMs}ms bcrypt=${bcryptMs}ms total=${Date.now() - startedAt}ms password=invalid`,
+          );
+        }
+
         return res.status(401).json({ error: "Invalid email or password" });
       }
 
+      const jwtStartedAt = Date.now();
       const token = await authController.generateToken(user.id);
+      const jwtMs = Date.now() - jwtStartedAt;
+
+      if (shouldLogAuthTimings) {
+        console.log(
+          `Login timing: db=${dbMs}ms bcrypt=${bcryptMs}ms jwt=${jwtMs}ms total=${Date.now() - startedAt}ms`,
+        );
+      }
 
       return res.json({
         user: {
