@@ -1,6 +1,6 @@
 import { loginSchema, registerSchema } from "../validators/auth.vaildator.js";
 import jwt from "jsonwebtoken";
-import bcrypt from "bcryptjs";
+import bcrypt from "bcrypt";
 import { prisma } from "../dbconfig/prisma.js";
 
 import { Request, Response } from "express";
@@ -117,7 +117,7 @@ export const authController = {
         return res.status(409).json({ error: "Email is already registered" });
       }
 
-      const password = await bcrypt.hash(result.data.password, 12);
+      const password = await bcrypt.hash(result.data.password, 10);
       const user = await prisma.user.create({
         data: {
           name: result.data.name,
