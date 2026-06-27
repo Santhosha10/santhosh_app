@@ -15,6 +15,24 @@ model User {
   is_admin   Int      @default(0)
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+  sessions   Session[]
 
   @@map("users")
+}
+
+model Session {
+  id                 String    @id @default(cuid())
+  user_id            Int
+  refresh_token_hash String    @unique @db.VarChar(64)
+  user_agent         String?   @db.VarChar(255)
+  ip_address         String?   @db.VarChar(45)
+  expires_at         DateTime
+  revoked_at         DateTime?
+  created_at         DateTime  @default(now())
+  updated_at         DateTime  @updatedAt
+  user               User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+  @@index([expires_at])
+  @@map("sessions")
 }

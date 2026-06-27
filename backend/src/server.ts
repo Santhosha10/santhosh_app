@@ -1,16 +1,14 @@
-import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import authRoutes from "./routes/auth.routes.js";
-import { prisma } from "./dbconfig/prisma.js";
+import { prisma } from "./config/databaseConfig.js";
+import { serverConfig } from "./config/serverConfig.js";
 
 const app = express();
-const port = Number(process.env["PORT"] || 3000);
-const frontendUrl = process.env["FRONTEND_URL"] || "http://localhost:5173";
 
 app.use(
   cors({
-    origin: frontendUrl,
+    origin: serverConfig.corsOrigin,
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization"],
   }),
@@ -30,8 +28,8 @@ app.use("/api/auth", authRoutes);
 
 const startServer = async () => {
   try {
-    app.listen(port, "0.0.0.0", () => {
-      console.log(`Server is running on port ${port}`);
+    app.listen(serverConfig.port, () => {
+      console.log(`Server is running on port ${serverConfig.port}`);
     });
   } catch (error) {
     console.error("Server failed to start", error);

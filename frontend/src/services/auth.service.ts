@@ -50,21 +50,25 @@ export const authService = {
     return user;
   },
 
-  logout: (): void => {
-    localStorage.removeItem("token");
+  logout: async (): Promise<void> => {
+    try {
+      await apiClient.post("/auth/logout");
+    } finally {
+      localStorage.removeItem("token");
+    }
   },
 
   isAuthenticated: async (): Promise<User | false> => {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
-        authService.logout();
+        localStorage.removeItem("token");
         return Promise.resolve(false);
       }
       let { data } = await apiClient.get<{ user: User }>("/auth/me");
       const user = data.user;
       if (!user) {
-        authService.logout();
+        localStorage.removeItem("token");
         return Promise.resolve(false);
       }
       return Promise.resolve(user);

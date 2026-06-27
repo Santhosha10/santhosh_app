@@ -24,7 +24,7 @@
     "typescript": "^6.0.3"
   },
   "scripts": {
-    "dev": "node --loader ts-node/esm src/server.ts",
+    "dev": "tsx watch src/server.ts",
     "build": "prisma generate && tsc",
     "start": "node dist/server.js",
     "render:start": "prisma migrate deploy && node dist/server.js",

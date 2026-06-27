@@ -10,15 +10,16 @@ export default function AuthenticatedLayout() {
   const navigate = useNavigate();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-  const logout = () => {
+  const logout = async () => {
     setIsLoggingOut(true);
-    authService.logout();
-    queryClient.removeQueries({ queryKey: ["user"] });
 
-    window.setTimeout(() => {
+    try {
+      await authService.logout();
+    } finally {
+      queryClient.removeQueries({ queryKey: ["user"] });
       setUser(null);
       navigate("/login", { replace: true });
-    }, 200);
+    }
   };
 
   return (
